@@ -74,8 +74,9 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
         return true;
     }
 
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"unchecked"})   //spring 初始化加载  （实现InitializingBean）
     public void afterPropertiesSet() throws Exception {
+        //consumer registry application module Monitor 加载属性配置
         if (getConsumer() == null) {
             Map<String, ConsumerConfig> consumerConfigMap = applicationContext == null ? null : BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext, ConsumerConfig.class, false, false);
             if (consumerConfigMap != null && consumerConfigMap.size() > 0) {
@@ -169,7 +170,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
             b = getConsumer().isInit();
         }
         if (b != null && b.booleanValue()) {
-            getObject();
+            getObject();   //获得代理对象
         }
     }
 
