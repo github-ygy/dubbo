@@ -333,11 +333,11 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         ref = createProxy(map);    //创建代理对象
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
+    @SuppressWarnings({"unchecked", "rawtypes", "deprecation"})   //创建consumer 代理
     private T createProxy(Map<String, String> map) {
         URL tmpUrl = new URL("temp", "localhost", 0, map);
         final boolean isJvmRefer;
-        if (isInjvm() == null) {
+        if (isInjvm() == null) {    //判断是否为优先本地获取
             if (url != null && url.length() > 0) { //指定URL的情况下，不做本地引用
                 isJvmRefer = false;
             } else if (InjvmProtocol.getInjvmProtocol().isInjvmRefer(tmpUrl)) {
@@ -350,9 +350,9 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             isJvmRefer = isInjvm().booleanValue();
         }
 
-        if (isJvmRefer) {
+        if (isJvmRefer) {   //本地调用
             URL url = new URL(Constants.LOCAL_PROTOCOL, NetUtils.LOCALHOST, 0, interfaceClass.getName()).addParameters(map);
-            invoker = refprotocol.refer(interfaceClass, url);
+            invoker = refprotocol.refer(interfaceClass, url);  //
             if (logger.isInfoEnabled()) {
                 logger.info("Using injvm service " + interfaceClass.getName());
             }
@@ -388,7 +388,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                 }
             }
 
-            if (urls.size() == 1) {
+            if (urls.size() == 1) {   //refprotocol 注册，并订阅服务，返回封装的invoker对象
                 invoker = refprotocol.refer(interfaceClass, urls.get(0));
             } else {
                 List<Invoker<?>> invokers = new ArrayList<Invoker<?>>();
@@ -402,7 +402,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                 if (registryURL != null) { // 有 注册中心协议的URL
                     // 对有注册中心的Cluster 只用 AvailableCluster
                     URL u = registryURL.addParameter(Constants.CLUSTER_KEY, AvailableCluster.NAME);
-                    invoker = cluster.join(new StaticDirectory(u, invokers));
+                    invoker = cluster.join(new StaticDirectory(u, invokers));   //返回相应容灾策略的invoker
                 } else { // 不是 注册中心的URL
                     invoker = cluster.join(new StaticDirectory(invokers));
                 }
@@ -422,7 +422,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         if (logger.isInfoEnabled()) {
             logger.info("Refer dubbo service " + interfaceClass.getName() + " from url " + invoker.getUrl());
         }
-        // 创建服务代理
+        // 创建服务代理  多种代理方式  （jdk 接口代理， stub代理本地存根）
         return (T) proxyFactory.getProxy(invoker);
     }
 
