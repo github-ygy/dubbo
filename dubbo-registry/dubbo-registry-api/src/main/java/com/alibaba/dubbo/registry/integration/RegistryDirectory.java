@@ -337,6 +337,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
      * @return invokers
      */
     private Map<String, Invoker<T>> toInvokers(List<URL> urls) {
+        // 刷新列表url转化为 invoker 同时会执行protocol.refer(serviceType, url) 选择相应的传输协议
         Map<String, Invoker<T>> newUrlInvokerMap = new HashMap<String, Invoker<T>>();
         if (urls == null || urls.size() == 0) {
             return newUrlInvokerMap;
