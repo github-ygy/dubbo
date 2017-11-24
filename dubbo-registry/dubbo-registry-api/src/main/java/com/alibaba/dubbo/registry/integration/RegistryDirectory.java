@@ -179,6 +179,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         }
     }
 
+    //接收注册中心通知
     public synchronized void notify(List<URL> urls) {
         List<URL> invokerUrls = new ArrayList<URL>();
         List<URL> routerUrls = new ArrayList<URL>();
@@ -568,6 +569,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         }
     }
 
+    //获取最新的列表
     public List<Invoker<T>> doList(Invocation invocation) {
         if (forbidden) {
             // 1. 没有服务提供者 2. 服务提供者被禁用
