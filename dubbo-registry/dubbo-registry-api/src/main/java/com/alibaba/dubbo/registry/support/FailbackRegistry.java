@@ -133,7 +133,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         failedUnregistered.remove(url);
         try {
             // 向服务器端发送注册请求
-            doRegister(url);
+            doRegister(url);    //由相应的注册中心注册  zookeeper注册
         } catch (Exception e) {
             Throwable t = e;
 
