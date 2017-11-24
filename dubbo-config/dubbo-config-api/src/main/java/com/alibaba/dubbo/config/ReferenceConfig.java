@@ -180,20 +180,21 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         ref = null;
     }
 
-    private void init() {
+    private void init() {   //初始化加载
         if (initialized) {
             return;
         }
         initialized = true;
-        if (interfaceName == null || interfaceName.length() == 0) {
+        if (interfaceName == null || interfaceName.length() == 0) { //interface Name配置
             throw new IllegalStateException("<dubbo:reference interface=\"\" /> interface not allow null!");
         }
         // 获取消费者全局配置
         checkDefault();
-        appendProperties(this);
+        appendProperties(this);  //加载当前配置，如果有配置，则覆盖默认配置
         if (getGeneric() == null && getConsumer() != null) {
             setGeneric(getConsumer().getGeneric());
         }
+        //反射获得消费者接口类
         if (ProtocolUtils.isGeneric(getGeneric())) {
             interfaceClass = GenericService.class;
         } else {
@@ -203,7 +204,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
-            checkInterfaceAndMethods(interfaceClass, methods);
+            checkInterfaceAndMethods(interfaceClass, methods);   //校验接口中是否含有配置的method
         }
         String resolve = System.getProperty(interfaceName);
         String resolveFile = null;
@@ -273,8 +274,8 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                 monitor = application.getMonitor();
             }
         }
-        checkApplication();
-        checkStubAndMock(interfaceClass);
+        checkApplication();   //application 配置
+        checkStubAndMock(interfaceClass);  // 本地伪装，服务降级配置
         Map<String, String> map = new HashMap<String, String>();
         Map<Object, Object> attributes = new HashMap<Object, Object>();
         map.put(Constants.SIDE_KEY, Constants.CONSUMER_SIDE);
@@ -329,7 +330,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
 
         //attributes通过系统context进行存储.
         StaticContext.getSystemContext().putAll(attributes);
-        ref = createProxy(map);
+        ref = createProxy(map);    //创建代理对象
     }
 
     @SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
@@ -429,7 +430,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         if (consumer == null) {
             consumer = new ConsumerConfig();
         }
-        appendProperties(consumer);
+        appendProperties(consumer);  //加载默认配置
     }
 
     public Class<?> getInterfaceClass() {
