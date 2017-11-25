@@ -34,6 +34,7 @@ public class RandomLoadBalance extends AbstractLoadBalance {
 
     private final Random random = new Random();
 
+    //负载均衡策略  随机选择
     protected <T> Invoker<T> doSelect(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         int length = invokers.size(); // 总个数
         int totalWeight = 0; // 总权重
@@ -50,7 +51,7 @@ public class RandomLoadBalance extends AbstractLoadBalance {
             // 如果权重不相同且权重大于0则按总权重数随机
             int offset = random.nextInt(totalWeight);
             // 并确定随机值落在哪个片断上
-            for (int i = 0; i < length; i++) {
+            for (int i = 0; i < length; i++) {       //从总权重的随机值 - 每个invoker的权重，直到< 0,则调用
                 offset -= getWeight(invokers.get(i), invocation);
                 if (offset < 0) {
                     return invokers.get(i);
