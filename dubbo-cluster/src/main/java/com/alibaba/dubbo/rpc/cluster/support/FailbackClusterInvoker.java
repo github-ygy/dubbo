@@ -59,6 +59,7 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
         if (retryFuture == null) {
             synchronized (this) {
                 if (retryFuture == null) {
+                    //定时重试
                     retryFuture = scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
 
                         public void run() {
@@ -85,7 +86,7 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
             Invocation invocation = entry.getKey();
             Invoker<?> invoker = entry.getValue();
             try {
-                invoker.invoke(invocation);
+                invoker.invoke(invocation);  //调用成功则从失败列表去除
                 failed.remove(invocation);
             } catch (Throwable e) {
                 logger.error("Failed retry to invoke method " + invocation.getMethodName() + ", waiting again.", e);
@@ -102,7 +103,7 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
             logger.error("Failback to invoke method " + invocation.getMethodName() + ", wait for retry in background. Ignored exception: "
                     + e.getMessage() + ", ", e);
             addFailed(invocation, this);
-            return new RpcResult(); // ignore
+            return new RpcResult(); // ignore    //后台重试，适用于没有结果数据返回的
         }
     }
 
