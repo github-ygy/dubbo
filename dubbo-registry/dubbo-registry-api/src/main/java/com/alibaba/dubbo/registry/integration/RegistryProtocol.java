@@ -113,9 +113,9 @@ public class RegistryProtocol implements Protocol {
 
     public <T> Exporter<T> export(final Invoker<T> originInvoker) throws RpcException {
         //export invoker
-        final ExporterChangeableWrapper<T> exporter = doLocalExport(originInvoker);
+        final ExporterChangeableWrapper<T> exporter = doLocalExport(originInvoker);  //暴露服务
         //registry provider
-        final Registry registry = getRegistry(originInvoker);
+        final Registry registry = getRegistry(originInvoker);  //注册
         final URL registedProviderUrl = getRegistedProviderUrl(originInvoker);
         registry.register(registedProviderUrl);
         // 订阅override数据

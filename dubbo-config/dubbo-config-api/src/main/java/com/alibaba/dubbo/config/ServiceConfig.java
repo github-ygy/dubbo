@@ -356,7 +356,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     private void doExportUrlsFor1Protocol(ProtocolConfig protocolConfig, List<URL> registryURLs) {
         String name = protocolConfig.getName();
         if (name == null || name.length() == 0) {
-            name = "dubbo";
+            name = "dubbo";    //默认dubbo协议
         }
 
         Map<String, String> map = new HashMap<String, String>();
