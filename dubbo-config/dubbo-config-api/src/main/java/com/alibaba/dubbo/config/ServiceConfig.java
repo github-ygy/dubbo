@@ -219,11 +219,11 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         if (exported) {
             return;
         }
-        exported = true;
+        exported = true;   //标记已暴露
         if (interfaceName == null || interfaceName.length() == 0) {
             throw new IllegalStateException("<dubbo:service interface=\"\" /> interface not allow null!");
         }
-        checkDefault();
+        checkDefault();   //check 默认配置
         if (provider != null) {
             if (application == null) {
                 application = provider.getApplication();
@@ -309,6 +309,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         if (path == null || path.length() == 0) {
             path = interfaceName;
         }
+        //校验所有参数，加载所有配置，开始暴露服务
         doExportUrls();
     }
 
