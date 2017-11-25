@@ -63,7 +63,7 @@ public class ForkingClusterInvoker<T> extends AbstractClusterInvoker<T> {
                 //在invoker列表(排除selected)后,如果没有选够,则存在重复循环问题.见select实现.
                 Invoker<T> invoker = select(loadbalance, invocation, invokers, selected);
                 if (!selected.contains(invoker)) {//防止重复添加invoker
-                    selected.add(invoker);
+                    selected.add(invoker);    //选择并行调用的服务
                 }
             }
         }
@@ -74,7 +74,7 @@ public class ForkingClusterInvoker<T> extends AbstractClusterInvoker<T> {
             executor.execute(new Runnable() {
                 public void run() {
                     try {
-                        Result result = invoker.invoke(invocation);
+                        Result result = invoker.invoke(invocation);   //通过线程并行调用，放入队列
                         ref.offer(result);
                     } catch (Throwable e) {
                         int value = count.incrementAndGet();
@@ -86,8 +86,8 @@ public class ForkingClusterInvoker<T> extends AbstractClusterInvoker<T> {
             });
         }
         try {
-            Object ret = ref.poll(timeout, TimeUnit.MILLISECONDS);
-            if (ret instanceof Throwable) {
+            Object ret = ref.poll(timeout, TimeUnit.MILLISECONDS);   //阻塞，直到队列含有数据，或超时返回
+            if (ret instanceof Throwable) {   //如果是异常，则直接抛出
                 Throwable e = (Throwable) ret;
                 throw new RpcException(e instanceof RpcException ? ((RpcException) e).getCode() : 0, "Failed to forking invoke provider " + selected + ", but no luck to perform the invocation. Last error is: " + e.getMessage(), e.getCause() != null ? e.getCause() : e);
             }
