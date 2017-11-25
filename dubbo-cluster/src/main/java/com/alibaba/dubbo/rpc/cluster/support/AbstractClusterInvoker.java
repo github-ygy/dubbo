@@ -130,12 +130,13 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
         if (invokers.size() == 2 && selected != null && selected.size() > 0) {
             return selected.get(0) == invokers.get(0) ? invokers.get(1) : invokers.get(0);
         }
-        Invoker<T> invoker = loadbalance.select(invokers, getUrl(), invocation);
+        Invoker<T> invoker = loadbalance.select(invokers, getUrl(), invocation);   //负载均衡加载策略
 
         //如果 selected中包含（优先判断） 或者 不可用&&availablecheck=true 则重试.
         if ((selected != null && selected.contains(invoker))
                 || (!invoker.isAvailable() && getUrl() != null && availablecheck)) {
             try {
+                //重新选择
                 Invoker<T> rinvoker = reselect(loadbalance, invocation, invokers, selected, availablecheck);
                 if (rinvoker != null) {
                     invoker = rinvoker;
