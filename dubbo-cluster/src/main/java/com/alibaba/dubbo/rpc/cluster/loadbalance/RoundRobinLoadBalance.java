@@ -38,6 +38,7 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
 
     private final ConcurrentMap<String, AtomicPositiveInteger> sequences = new ConcurrentHashMap<String, AtomicPositiveInteger>();
 
+    //按公约后的权重轮循
     protected <T> Invoker<T> doSelect(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         String key = invokers.get(0).getUrl().getServiceKey() + "." + invocation.getMethodName();
         int length = invokers.size(); // 总个数
@@ -50,7 +51,7 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
             maxWeight = Math.max(maxWeight, weight); // 累计最大权重
             minWeight = Math.min(minWeight, weight); // 累计最小权重
             if (weight > 0) {
-                invokerToWeightMap.put(invokers.get(i), new IntegerWrapper(weight));
+                invokerToWeightMap.put(invokers.get(i), new IntegerWrapper(weight));  //记录每一个invoker的权重
                 weightSum += weight;
             }
         }
@@ -59,17 +60,18 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
             sequences.putIfAbsent(key, new AtomicPositiveInteger());
             sequence = sequences.get(key);
         }
-        int currentSequence = sequence.getAndIncrement();
+        int currentSequence = sequence.getAndIncrement();   //+1操作
         if (maxWeight > 0 && minWeight < maxWeight) { // 权重不一样
             int mod = currentSequence % weightSum;
             for (int i = 0; i < maxWeight; i++) {
+                //轮循
                 for (Map.Entry<Invoker<T>, IntegerWrapper> each : invokerToWeightMap.entrySet()) {
                     final Invoker<T> k = each.getKey();
                     final IntegerWrapper v = each.getValue();
-                    if (mod == 0 && v.getValue() > 0) {
+                    if (mod == 0 && v.getValue() > 0) {   //当mod为0时，即为选择的invoker
                         return k;
                     }
-                    if (v.getValue() > 0) {
+                    if (v.getValue() > 0) {   //每次减- 操作，直到权重为0，则过滤掉该invoker
                         v.decrement();
                         mod--;
                     }
