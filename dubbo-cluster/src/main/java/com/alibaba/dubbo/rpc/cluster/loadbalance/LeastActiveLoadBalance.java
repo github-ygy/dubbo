@@ -35,6 +35,7 @@ public class LeastActiveLoadBalance extends AbstractLoadBalance {
 
     private final Random random = new Random();
 
+    //最小活跃数，必须激活activefilter 用来总计每个invoker的活跃数
     protected <T> Invoker<T> doSelect(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         int length = invokers.size(); // 总个数
         int leastActive = -1; // 最小的活跃数
@@ -59,7 +60,7 @@ public class LeastActiveLoadBalance extends AbstractLoadBalance {
                 totalWeight += weight; // 累计总权重
                 // 判断所有权重是否一样
                 if (sameWeight && i > 0
-                        && weight != firstWeight) {
+                        && weight != firstWeight) {   //只要有一个不相同，则false
                     sameWeight = false;
                 }
             }
@@ -69,7 +70,7 @@ public class LeastActiveLoadBalance extends AbstractLoadBalance {
             // 如果只有一个最小则直接返回
             return invokers.get(leastIndexs[0]);
         }
-        if (!sameWeight && totalWeight > 0) {
+        if (!sameWeight && totalWeight > 0) {     //权重不同则按 random 随机权重处理
             // 如果权重不相同且权重大于0则按总权重数随机
             int offsetWeight = random.nextInt(totalWeight);
             // 并确定随机值落在哪个片断上
