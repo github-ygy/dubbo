@@ -41,9 +41,9 @@ public class StaticContext extends ConcurrentHashMap<Object, Object> {
     }
 
     public static StaticContext getContext(String name) {
-        StaticContext appContext = context_map.get(name);
+        StaticContext appContext = context_map.get(name); //null
         if (appContext == null) {
-            appContext = context_map.putIfAbsent(name, new StaticContext(name));
+            appContext = context_map.putIfAbsent(name, new StaticContext(name)); // put all
             if (appContext == null) {
                 appContext = context_map.get(name);
             }

@@ -194,7 +194,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         if (getGeneric() == null && getConsumer() != null) {
             setGeneric(getConsumer().getGeneric());
         }
-        //反射获得消费者接口类
+        //泛型调用 设置特定的泛型接口
         if (ProtocolUtils.isGeneric(getGeneric())) {
             interfaceClass = GenericService.class;
         } else {
@@ -204,7 +204,8 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
-            checkInterfaceAndMethods(interfaceClass, methods);   //校验接口中是否含有配置的method
+            //校验接口中是否含有配置的method
+            checkInterfaceAndMethods(interfaceClass, methods);
         }
         String resolve = System.getProperty(interfaceName);
         String resolveFile = null;
@@ -277,13 +278,16 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         checkApplication();   //application 配置
         checkStubAndMock(interfaceClass);  // 本地伪装，服务降级配置
         Map<String, String> map = new HashMap<String, String>();
+        //配置dubbo属性
         Map<Object, Object> attributes = new HashMap<Object, Object>();
         map.put(Constants.SIDE_KEY, Constants.CONSUMER_SIDE);
         map.put(Constants.DUBBO_VERSION_KEY, Version.getVersion());
         map.put(Constants.TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));
         if (ConfigUtils.getPid() > 0) {
+            //获取进程pid
             map.put(Constants.PID_KEY, String.valueOf(ConfigUtils.getPid()));
         }
+        //非泛型调用
         if (!isGeneric()) {
             String revision = Version.getVersion(interfaceClass, version);
             if (revision != null && revision.length() > 0) {
@@ -357,7 +361,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                 logger.info("Using injvm service " + interfaceClass.getName());
             }
         } else {
-            if (url != null && url.length() > 0) { // 用户指定URL，指定的URL可能是对点对直连地址，也可能是注册中心URL
+            if (url != null && url.length() > 0) {  //优先点对点的直连服务
                 String[] us = Constants.SEMICOLON_SPLIT_PATTERN.split(url);
                 if (us != null && us.length > 0) {
                     for (String u : us) {
